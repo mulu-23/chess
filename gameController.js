@@ -66,18 +66,18 @@ function loadPiece(piece, position) {
 
 function getPieceImageSource(piece) {
     switch (piece) {
-        case 'R': return 'assets/black_rook.png';
-        case 'N': return 'assets/black_knight.png';
-        case 'B': return 'assets/black_bishop.png';
-        case 'Q': return 'assets/black_queen.png';
-        case 'K': return 'assets/black_king.png';
-        case 'P': return 'assets/black_pawn.png';
-        case 'r': return 'assets/white_rook.png';
-        case 'n': return 'assets/white_knight.png';
-        case 'b': return 'assets/white_bishop.png';
-        case 'q': return 'assets/white_queen.png';
-        case 'k': return 'assets/white_king.png';
-        case 'p': return 'assets/white_pawn.png';
+        case 'R': return 'black_rook.png';
+        case 'N': return 'black_knight.png';
+        case 'B': return 'black_bishop.png';
+        case 'Q': return 'black_queen.png';
+        case 'K': return 'black_king.png';
+        case 'P': return 'black_pawn.png';
+        case 'r': return 'white_rook.png';
+        case 'n': return 'white_knight.png';
+        case 'b': return 'white_bishop.png';
+        case 'q': return 'white_queen.png';
+        case 'k': return 'white_king.png';
+        case 'p': return 'white_pawn.png';
         default: return '';
     }
 }
