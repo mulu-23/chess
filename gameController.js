@@ -27,16 +27,14 @@ function startGame() {
 }
 
 function loadPosition(position, playerToMove) {
-    curBoard = position.map(row => [...row]); // Создаем копию
+    curBoard = position.map(row => [...row]);
     curPlayer = playerToMove;
 
-    // Очищаем доску
     document.querySelectorAll('.board__square').forEach(square => {
         square.innerHTML = '';
         square.classList.remove('board__square_check');
     });
 
-    // Загружаем фигуры
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if (position[i][j] !== '.') {
@@ -45,7 +43,6 @@ function loadPosition(position, playerToMove) {
         }
     }
 
-    // Проверяем шах после загрузки
     checkAndDisplayCheck();
 }
 
@@ -114,7 +111,7 @@ function showNotification(type, message) {
     notification.appendChild(title);
     notification.appendChild(msg);
 
-    if (type === 'checkmate' || type === 'nuclear') {
+    if (type === 'checkmate') {
         const button = document.createElement('button');
         button.className = 'notification__button';
         button.textContent = 'Новая игра';
@@ -164,7 +161,6 @@ function findKingPosition(color) {
 }
 
 function isSquareUnderAttack(position, attackingColor) {
-    
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             const piece = curBoard[i][j];
@@ -173,15 +169,12 @@ function isSquareUnderAttack(position, attackingColor) {
             const isWhitePiece = piece === piece.toLowerCase();
             const pieceColor = isWhitePiece ? 'white' : 'black';
             
-            // Проверяем только фигуры атакующего цвета
             if (pieceColor === attackingColor) {
-                // Временно меняем игрока для проверки
                 const originalPlayer = curPlayer;
                 curPlayer = attackingColor;
                 
                 const canAttack = validateMovement([i, j], position, true);
                 
-                // Возвращаем оригинального игрока
                 curPlayer = originalPlayer;
                 
                 if (canAttack) {
@@ -202,12 +195,10 @@ function isKingInCheck(color) {
 }
 
 function highlightKingInCheck() {
-    // Убираем предыдущую подсветку
     document.querySelectorAll('.board__square').forEach(square => {
         square.classList.remove('board__square_check');
     });
 
-    // Проверяем шах для обоих королей
     const whiteKingPos = findKingPosition('white');
     const blackKingPos = findKingPosition('black');
 
@@ -229,7 +220,6 @@ function highlightKingInCheck() {
 function checkAndDisplayCheck() {
     highlightKingInCheck();
     
-    // Проверяем шах для текущего игрока
     if (isKingInCheck(curPlayer)) {
         if (isCheckmate(curPlayer)) {
             const winner = curPlayer === 'white' ? 'черные' : 'белые';
@@ -243,7 +233,6 @@ function checkAndDisplayCheck() {
 }
 
 function isCheckmate(color) {
-    // Проверяем все фигуры цвета color
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             const piece = curBoard[i][j];
@@ -253,31 +242,25 @@ function isCheckmate(color) {
             const pieceColor = isWhitePiece ? 'white' : 'black';
             
             if (pieceColor === color) {
-                // Проверяем все возможные ходы для этой фигуры
                 for (let x = 0; x < 8; x++) {
                     for (let y = 0; y < 8; y++) {
                         const startPos = [i, j];
                         const endPos = [x, y];
                         
-                        // Пропускаем ту же клетку
                         if (startPos[0] === endPos[0] && startPos[1] === endPos[1]) continue;
                         
-                        // Проверяем валидность хода
                         if (validateMovement(startPos, endPos, true)) {
-                            // Симулируем ход
                             const originalPiece = curBoard[endPos[0]][endPos[1]];
                             curBoard[endPos[0]][endPos[1]] = piece;
                             curBoard[startPos[0]][startPos[1]] = '.';
                             
-                            // Проверяем, не остался ли король под шахом после хода
                             const stillInCheck = isKingInCheck(color);
                             
-                            // Отменяем ход
                             curBoard[startPos[0]][startPos[1]] = piece;
                             curBoard[endPos[0]][endPos[1]] = originalPiece;
                             
                             if (!stillInCheck) {
-                                return false; // Нашли ход, который спасает от шаха
+                                return false;
                             }
                         }
                     }
@@ -285,7 +268,7 @@ function isCheckmate(color) {
             }
         }
     }
-    return true; // Нет ходов, спасающих от шаха
+    return true;
 }
 
 function clearHighlights() {
@@ -306,37 +289,30 @@ function showValidMoves(startingPosition) {
     const piece = curBoard[startingPosition[0]][startingPosition[1]];
     if (!piece || piece === '.') return;
 
-    // Проверяем, что ходит правильный игрок
     const isWhitePiece = piece === piece.toLowerCase();
     if ((isWhitePiece && curPlayer !== 'white') || (!isWhitePiece && curPlayer !== 'black')) {
         return;
     }
 
-    // Проверяем все клетки доски
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             const endingPosition = [i, j];
             
-            // Пропускаем ту же клетку
             if (endingPosition[0] === startingPosition[0] && endingPosition[1] === startingPosition[1]) {
                 continue;
             }
 
-            // Проверяем валидность хода
             if (validateMovement(startingPosition, endingPosition, true)) {
-                // Проверяем, не оставляет ли ход короля под шахом
                 const piece = curBoard[startingPosition[0]][startingPosition[1]];
                 const isWhitePiece = piece === piece.toLowerCase();
                 const pieceColor = isWhitePiece ? 'white' : 'black';
                 
-                // Симулируем ход
                 const originalPiece = curBoard[endingPosition[0]][endingPosition[1]];
                 curBoard[endingPosition[0]][endingPosition[1]] = piece;
                 curBoard[startingPosition[0]][startingPosition[1]] = '.';
                 
                 const leavesKingInCheck = isKingInCheck(pieceColor);
                 
-                // Отменяем ход
                 curBoard[startingPosition[0]][startingPosition[1]] = piece;
                 curBoard[endingPosition[0]][endingPosition[1]] = originalPiece;
                 
@@ -355,62 +331,48 @@ function showValidMoves(startingPosition) {
 function setPieceHoldEvents() {
     const board = document.querySelector('.board');
     
-    // Обработчик правой кнопки мыши
     board.addEventListener('contextmenu', function(event) {
-        event.preventDefault(); // Отключаем стандартное контекстное меню
-        launchNuclearStrike();
+        event.preventDefault();
     });
     
-    // Обработчик начала перетаскивания (левая кнопка)
     board.addEventListener('mousedown', function(event) {
-        // Проверяем, что это левая кнопка (button === 0)
         if (event.button !== 0) return;
         if (gameOver) return;
 
         const piece = event.target.closest('.board__piece');
         if (!piece) return;
 
-        // Предотвращаем стандартное перетаскивание
         event.preventDefault();
 
-        // Получаем позицию фигуры
         const square = piece.parentElement;
         const pos = square.id.split('').map(Number);
         const boardPos = [pos[0] - 1, pos[1] - 1];
         
-        // Проверяем, что ходит правильный игрок
         const pieceChar = piece.id;
         const isWhitePiece = pieceChar === pieceChar.toLowerCase();
         if ((isWhitePiece && curPlayer !== 'white') || (!isWhitePiece && curPlayer !== 'black')) {
             return;
         }
 
-        // Показываем доступные ходы
         showValidMoves(boardPos);
 
-        // Получаем размеры фигуры
         const pieceRect = piece.getBoundingClientRect();
         
-        // Вычисляем смещение от центра фигуры до курсора
         dragOffsetX = pieceRect.width / 2;
         dragOffsetY = pieceRect.height / 2;
 
-        // Устанавливаем фигуру для перетаскивания
         curHeldPiece = piece;
         curHeldPieceStartingPosition = boardPos;
         isDragging = true;
 
-        // Добавляем класс для перетаскивания
         piece.classList.add('board__piece_dragging');
         piece.style.position = 'fixed';
         piece.style.zIndex = '1000';
         piece.style.willChange = 'left, top';
         
-        // Устанавливаем начальную позицию - центр фигуры под курсором
         updatePiecePosition(event.clientX, event.clientY);
     });
 
-    // Обработчик движения мыши
     document.addEventListener('mousemove', function(event) {
         if (!isDragging || !curHeldPiece) return;
         
@@ -418,11 +380,9 @@ function setPieceHoldEvents() {
         updatePiecePosition(event.clientX, event.clientY);
     });
 
-    // Обработчик окончания перетаскивания
     document.addEventListener('mouseup', function(event) {
         if (!isDragging || !curHeldPiece || gameOver) return;
 
-        // Убираем фигуру из абсолютного позиционирования
         curHeldPiece.style.position = '';
         curHeldPiece.style.top = '';
         curHeldPiece.style.left = '';
@@ -430,15 +390,12 @@ function setPieceHoldEvents() {
         curHeldPiece.style.willChange = '';
         curHeldPiece.classList.remove('board__piece_dragging');
 
-        // Проверяем, куда бросили фигуру
         const boardElement = document.querySelector('.board');
         const boardRect = boardElement.getBoundingClientRect();
 
-        // Проверяем, находится ли мышь над доской
         if (event.clientX >= boardRect.left && event.clientX <= boardRect.right &&
             event.clientY >= boardRect.top && event.clientY <= boardRect.bottom) {
             
-            // Вычисляем позицию на доске
             const mousePositionOnBoardX = event.clientX - boardRect.left;
             const mousePositionOnBoardY = event.clientY - boardRect.top;
 
@@ -448,15 +405,12 @@ function setPieceHoldEvents() {
             const colIndex = Math.floor((mousePositionOnBoardX - boardBorderSize) / squareSize);
             const rowIndex = Math.floor((mousePositionOnBoardY - boardBorderSize) / squareSize);
 
-            // Проверяем, что индексы в пределах доски
             if (rowIndex >= 0 && rowIndex < 8 && colIndex >= 0 && colIndex < 8) {
                 const pieceReleasePosition = [rowIndex, colIndex];
 
-                // Проверяем, что это не та же клетка
                 if (!(pieceReleasePosition[0] === curHeldPieceStartingPosition[0] && 
                       pieceReleasePosition[1] === curHeldPieceStartingPosition[1])) {
                     
-                    // Проверяем валидность хода
                     if (validateMovement(curHeldPieceStartingPosition, pieceReleasePosition, false)) {
                         movePiece(curHeldPiece, curHeldPieceStartingPosition, pieceReleasePosition);
                     } else {
@@ -472,16 +426,13 @@ function setPieceHoldEvents() {
             returnPieceToStart(curHeldPiece, curHeldPieceStartingPosition);
         }
 
-        // Сбрасываем состояние перетаскивания
         curHeldPiece = null;
         curHeldPieceStartingPosition = null;
         isDragging = false;
         
-        // Убираем подсветку
         clearHighlights();
     });
 
-    // Функция для обновления позиции фигуры при перетаскивании
     function updatePiecePosition(clientX, clientY) {
         if (!curHeldPiece) return;
         
@@ -492,7 +443,6 @@ function setPieceHoldEvents() {
         curHeldPiece.style.top = y + 'px';
     }
 
-    // Функция для возврата фигуры на исходную позицию
     function returnPieceToStart(piece, startPosition) {
         const originalSquare = document.getElementById(`${startPosition[0] + 1}${startPosition[1] + 1}`);
         if (originalSquare) {
@@ -508,30 +458,20 @@ function movePiece(piece, startingPosition, endingPosition) {
         if ((boardPiece === boardPiece.toUpperCase() && curPlayer === 'black') ||
             (boardPiece === boardPiece.toLowerCase() && curPlayer === 'white')) {
             
-            // Обновляем логическую доску
             curBoard[startingPosition[0]][startingPosition[1]] = '.';
             curBoard[endingPosition[0]][endingPosition[1]] = boardPiece;
 
-            // Перемещаем фигуру в DOM
             const destinationSquare = document.getElementById(`${endingPosition[0] + 1}${endingPosition[1] + 1}`);
             
-            // Очищаем целевую клетку
             destinationSquare.innerHTML = '';
-            
-            // Добавляем фигуру в новую клетку
             destinationSquare.appendChild(piece);
 
-            // Обновляем атрибуты данных фигуры
             piece.setAttribute('data-row', endingPosition[0]);
             piece.setAttribute('data-col', endingPosition[1]);
 
-            // Меняем игрока
             curPlayer = curPlayer === 'white' ? 'black' : 'white';
             
-            // Обновляем индикатор хода
             updateTurnIndicator();
-            
-            // Проверяем шах и мат
             checkAndDisplayCheck();
         }
     }
@@ -542,7 +482,6 @@ function validateMovement(startingPosition, endingPosition, isHighlightCheck = f
     
     if (!boardPiece || boardPiece === '.') return false;
 
-    // Для подсветки не проверяем очередь хода
     if (!isHighlightCheck) {
         const isWhitePiece = boardPiece === boardPiece.toLowerCase();
         if ((isWhitePiece && curPlayer !== 'white') || (!isWhitePiece && curPlayer !== 'black')) {
@@ -608,19 +547,16 @@ function validatePawnMovement(pawnColor, startingPosition, endingPosition) {
     const startRow = pawnColor === 'white' ? 6 : 1;
     const isFirstMove = startingPosition[0] === startRow;
 
-    // Обычный ход вперед
     if (endingPosition[1] === startingPosition[1]) {
         if (endingPosition[0] === startingPosition[0] + direction) {
             return !isPieceOnSquare(endingPosition);
         }
         if (isFirstMove && endingPosition[0] === startingPosition[0] + direction * 2) {
-            // Проверяем, что клетка перед пешкой свободна
             const middlePos = [startingPosition[0] + direction, startingPosition[1]];
             return !isPieceOnSquare(endingPosition) && !isPieceOnSquare(middlePos);
         }
     }
     
-    // Взятие
     if (endingPosition[0] === startingPosition[0] + direction &&
         Math.abs(endingPosition[1] - startingPosition[1]) === 1) {
         return isEnemyPieceOnEndingPosition(endingPosition);
@@ -692,6 +628,5 @@ function isEnemyPieceOnEndingPosition(endingPosition) {
     return (isWhitePiece && curPlayer === 'black') || (!isWhitePiece && curPlayer === 'white');
 }
 
-// Запуск игры
 startGame();
 setPieceHoldEvents();
